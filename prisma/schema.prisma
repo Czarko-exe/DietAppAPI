@@ -1,0 +1,94 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  DIETITIAN
+  PATIENT
+}
+
+enum MealType {
+  BREAKFAST
+  SECOND_BREAKFAST
+  LUNCH
+  SNACK
+  DINNER
+}
+
+model User {
+  id        Int    @id @default(autoincrement())
+  email     String @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role   @default(PATIENT)
+
+  patientProfile      PatientProfile?  @relation("UserProfile")
+  patientsAsDietitian PatientProfile[] @relation("DietitianPatients")
+  createdPlans        DietPlan[]       @relation("DietitianPlans")
+}
+
+model PatientProfile {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  user            User     @relation("UserProfile", fields: [userId], references: [id], onDelete: Cascade)
+  dietitianId     Int?
+  dietitian       User?    @relation("DietitianPatients", fields: [dietitianId], references: [id], onDelete: SetNull)
+  birthDate       DateTime
+  heightCm        Int
+  currentWeightKg Float
+  targetWeightKg  Float
+  notes           String?
+
+  plans DietPlan[]
+}
+
+model DietPlan {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String
+  duration    String
+  patientId   Int
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  authorId    Int
+  author      User           @relation("DietitianPlans", fields: [authorId], references: [id])
+  createdAt   DateTime       @default(now())
+
+  meals PlanMeal[]
+}
+
+model PlanMeal {
+  id         Int      @id @default(autoincrement())
+  dietPlanId Int
+  dietPlan   DietPlan @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int
+  type       MealType
+  name       String
+
+  items MealItem[]
+}
+
+model MealItem {
+  id          Int      @id @default(autoincrement())
+  planMealId  Int
+  planMeal    PlanMeal @relation(fields: [planMealId], references: [id], onDelete: Cascade)
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  amountGrams Int
+}
+
+model Product {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  calories Int
+  protein  Float
+  fat      Float
+  carbs    Float
+
+  mealItems MealItem[]
+}
