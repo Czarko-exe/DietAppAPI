@@ -30,7 +30,7 @@ export class DietPlanController {
         if (req.user.role !== 'DIETITIAN') {
             throw new ForbiddenException('Tylko dietetyk może tworzyć plany dietetyczne');
         }
-        return this.dietPlanService.createPlan(req.user, dto);
+        return this.dietPlanService.createPlan(req.user.id, dto);
     }
 
     @Post(':id/meals')
