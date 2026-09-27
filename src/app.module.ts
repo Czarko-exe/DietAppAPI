@@ -6,9 +6,10 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { PatientModule } from './patient/patient.module';
+import { DietPlanModule } from './diet-plan/diet-plan.module';
 
 @Module({
-  imports: [DatabaseModule, UserModule, AuthModule, ProductModule, PatientModule],
+  imports: [DatabaseModule, UserModule, AuthModule, ProductModule, PatientModule, DietPlanModule],
   controllers: [AppController],
   providers: [AppService],
 })
