@@ -1,98 +1,89 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# DietApp API — Backend do zarządzania planami dietetycznymi
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+System backendowy REST API zaprojektowany do obsługi gabinetu dietetycznego. Aplikacja umożliwia dietetykom zarządzanie bazą pacjentów, katalogiem produktów spożywczych oraz tworzenie spersonalizowanych jadłospisów z automatycznym przeliczaniem wartości odżywczych i kalorii.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Kluczowe funkcjonalności
 
-## Description
+1. Autentykacja i role (AuthModule, UserModule):
+    - Rejestracja i logowanie użytkowników z hashowaniem haseł (bcrypt).
+    - Uwierzytelnianie bezstanowe oparte o tokeny JWT (Bearer token).
+    - Podział ról w systemie: DIETITIAN (Dietetyk) oraz PATIENT (Pacjent).
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+2. Katalog produktów (ProductModule):
+    - Pełny CRUD produktów spożywczych (kalorie, białko, tłuszcz, węglowodany na 100g).
+    - Wyszukiwanie produktów po nazwie (?search=).
+    - Modyfikacja bazy ograniczona wyłącznie do roli dietetyka.
 
-## Project setup
+3. Karty medyczne pacjentów (PatientModule):
+    - Zakładanie profili pacjentów powiązanych z dietetykiem prowadzącym.
+    - Rejestracja parametrów: wzrost, waga początkowa, waga docelowa, data urodzenia, notatki medyczne.
 
+4. Jadłospisy i kalkulacja wartości odżywczych (DietPlanModule):
+    - Tworzenie planów diety dla konkretnego pacjenta.
+    - Przypisywanie posiłków do określonych dni tygodnia (1–7) oraz typów posiłków (BREAKFAST, LUNCH, itp.).
+    - Dodawanie produktów o zdefiniowanej gramaturze do poszczególnych dań.
+    - Automatyczna kalkulacja sumarycznych kalorii oraz makroskładników per posiłek.
+---
+
+## Stos technologiczny
+
+- Framework: NestJS
+- Język: TypeScript
+- Baza danych: PostgreSQL
+- ORM: Prisma
+- Autentykacja: Passport JWT (@nestjs/passport, passport-jwt, bcrypt)
+- Walidacja danych: class-validator, class-transformer
+- Dokumentacja API: Swagger UI (@nestjs/swagger)
+
+---
+
+## Uruchomienie projektu lokalnie
+
+### 1. Klonowanie repozytorium i instalacja zależności
 ```bash
-$ npm install
+git clone <URL_REPOZYTORIUM>
+cd DietAppAPI
+npm install
 ```
 
-## Compile and run the project
+### 2. Konfiguracja zmiennych środowiskowych
+
+Skopiuj plik z przykładową konfiguracją środowiskową:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
 ```
 
-## Run tests
+Następnie uzupełnij w pliku .env poprawne dane logowania do bazy PostgreSQL (DATABASE_URL).
+
+### 3. Migracja bazy danych i seedowanie danych
+
+Zastosuj schemat bazy za pomocą Prismy i zasil słownik produktów danymi początkowymi:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npx prisma migrate dev --name init
+npx prisma db seed
 ```
 
-## Deployment
+### 4. Uruchomienie serwera
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+Tryb deweloperski:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Tryb produkcyjny:
+```bash
+npm run build
+npm run start:prod
+```
 
-## Resources
+Aplikacja wystartuje pod adresem: http://localhost
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Dokumentacja Swagger UI
 
-## Support
+Kompletna, interaktywna dokumentacja wszystkich endpointów REST API wraz ze schematami DTO jest dostępna pod adresem:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+http://localhost/api
